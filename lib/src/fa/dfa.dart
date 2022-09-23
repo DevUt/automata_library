@@ -28,15 +28,19 @@ class DFA {
     //initialState should be in states
     if (!states.contains(initialState)) return false;
 
+    // The Transition function should have transitions for each of the states
+    if (states != MapKeySet(transitionFunction)) return false;
+
     for (MapEntry tranistionObj in transitionFunction.entries) {
-      var state = tranistionObj.key;
-      var transitions = tranistionObj.value;
+      Map<String, String> transitions = tranistionObj.value;
 
-      if (!states.contains(state)) return false;
+      Set<String> alphabetUsedInTransition = MapKeySet(transitions);
+      if (alphabetUsedInTransition != alphabet) return false;
 
-      if (states.length != transitions.length) return false;
+      Set<String> statesInTransition =
+          MapValueSet(transitions, (String str) => str.hashCode);
 
-      if (!states.containsAll(MapKeySet(transitions))) return false;
+      if (!states.containsAll(statesInTransition)) return false;
     }
     return true;
   }
