@@ -5,15 +5,15 @@ import 'package:automata_library/automata_library.dart';
 void main() {
   var dfa = DFA(
       alphabet: {"0", "1"},
-      initialState: "even",
-      acceptingStates: {"odd"},
-      states: {"odd", "even"},
+      initialState: "q0",
+      acceptingStates: {"q1"},
+      states: {"q0", "q1"},
       transitionFunction: {
-        "even": {"0": "odd", "1": "even"},
-        "odd": {"0": "even", "1": "odd"}
+        "q0": {"0": "q1", "1": "q0"},
+        "q1": {"0": "q0", "1": "q1"}
       });
   print("DFA to check odd number of 0 in string");
-
+  print("Is valid? ${dfa.validate().toString()}");
   String? inputString;
   print("Test a input string");
   inputString = stdin.readLineSync();

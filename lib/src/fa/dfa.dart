@@ -29,13 +29,17 @@ class DFA {
     if (!states.contains(initialState)) return false;
 
     // The Transition function should have transitions for each of the states
-    if (states != MapKeySet(transitionFunction)) return false;
+    if (!SetEquality().equals(states, MapKeySet(transitionFunction).toSet())) {
+      return false;
+    }
 
     for (MapEntry tranistionObj in transitionFunction.entries) {
       Map<String, String> transitions = tranistionObj.value;
 
       Set<String> alphabetUsedInTransition = MapKeySet(transitions);
-      if (alphabetUsedInTransition != alphabet) return false;
+      if (!SetEquality().equals(alphabetUsedInTransition, alphabet)) {
+        return false;
+      }
 
       Set<String> statesInTransition =
           MapValueSet(transitions, (String str) => str.hashCode);
@@ -70,6 +74,8 @@ class DFA {
 
     return statesVisited;
   }
+
+  /// returns a minified DFA
 
   /// Returns AcceptingStateTest class on testing the input
   AcceptingStateTest acceptingStateTest(List<String> input) {
