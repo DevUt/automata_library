@@ -58,6 +58,19 @@ class DFA {
     return state;
   }
 
+  /// Addon for the [testInput]
+  List<String> testStepwiseInput(List<String> input) {
+    List<String> statesVisited = [];
+    String state = initialState;
+
+    for (String inputSymbol in input) {
+      state = transition(originState: state, symbol: inputSymbol);
+      statesVisited.add(state);
+    }
+
+    return statesVisited;
+  }
+
   /// Returns AcceptingStateTest class on testing the input
   AcceptingStateTest acceptingStateTest(List<String> input) {
     final String finalState = testInput(input);
