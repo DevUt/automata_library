@@ -75,8 +75,6 @@ class DFA {
     return statesVisited;
   }
 
-  /// returns a minified DFA
-
   /// Returns AcceptingStateTest class on testing the input
   AcceptingStateTest acceptingStateTest(List<String> input) {
     final String finalState = testInput(input);
@@ -98,5 +96,16 @@ class DFA {
       throw InvalidInputSymbolException(offendingSymbol: symbol);
     }
     return transitionFunction[originState]![symbol]!;
+  }
+
+  DFA complement() {
+    DFA newDfa = this;
+    newDfa._exchangeFinalAndNonFinal();
+
+    return newDfa;
+  }
+
+  void _exchangeFinalAndNonFinal() {
+    acceptingStates = states.difference(acceptingStates);
   }
 }
