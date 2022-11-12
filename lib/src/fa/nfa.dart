@@ -21,8 +21,6 @@ class NFA {
   /// state : [alphabet, Set<State>]
   Map<String, Map<String, Set<String>>> transitionFunction;
 
-  String _epsilon = 'ε';
-
   NFA({
     required this.alphabet,
     required this.initialState,
@@ -78,7 +76,8 @@ class NFA {
   }
 
   /// return set of states that is reached by NFA on a input
-  Set<String>? testInput(List<String> input) {
+  Set<Set<String>> testStepWiseInput(List<String> input) {
+    Set<Set<String>> statesAtSteps = {};
     List<String> statesToCheck = [initialState];
     for (String inputSymbol in input) {
       List<String> newStates = [];
@@ -87,9 +86,15 @@ class NFA {
         newStates.addAll(
             transition(originState: state, symbol: inputSymbol)?.toList() ??
                 []);
+        statesAtSteps.add(statesToCheck.toSet());
       }
       statesToCheck = newStates;
     }
-    return statesToCheck.toSet();
+    return statesAtSteps;
+  }
+
+  ///return the result of test input
+  Set<String>? testInput(List<String> input) {
+    return testStepWiseInput(input).last;
   }
 }
