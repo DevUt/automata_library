@@ -110,13 +110,13 @@ class DFA {
     acceptingStates = states.difference(acceptingStates);
   }
 
-  ///Compute states which are reachable from the initialState
-  Set<String> computeReachableStates() {
+  /// Run a traversal from a node to find reachable nodes
+  Set<String> _traversalSearch({required String startState}) {
     Set<String> visitedState = {};
     Queue<String> stackSimulate = Queue();
 
-    stackSimulate.add(initialState);
-    visitedState.add(initialState);
+    stackSimulate.add(startState);
+    visitedState.add(startState);
 
     while (stackSimulate.isNotEmpty) {
       String currentState = stackSimulate.removeFirst();
@@ -130,4 +130,27 @@ class DFA {
     }
     return visitedState;
   }
+
+  ///Compute states which are reachable from the initialState
+  Set<String> computeReachableStates() {
+    return _traversalSearch(startState: initialState);
+  }
+
+  ///Find states which are dead (have no path to final state)
+  Set<String> computeDeadStates() {
+    Set<String> deadStates = {};
+
+    for (String state in states) {
+      if (!acceptingStates.contains(state)) {
+        Set<String> statesReachable = _traversalSearch(startState: state);
+
+        if (acceptingStates.intersection(statesReachable).isEmpty) {
+          deadStates.add(state);
+        }
+      }
+    }
+    return deadStates;
+  }
+
+  ///Return a directed graph of the DFA
 }
