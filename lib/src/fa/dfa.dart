@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:core';
 import 'package:collection/collection.dart';
 import 'package:automata_library/src/base/exceptions.dart';
@@ -107,5 +108,26 @@ class DFA {
 
   void _exchangeFinalAndNonFinal() {
     acceptingStates = states.difference(acceptingStates);
+  }
+
+  ///Compute states which are reachable from the initialState
+  Set<String> computeReachableStates() {
+    Set<String> visitedState = {};
+    Queue<String> stackSimulate = Queue();
+
+    stackSimulate.add(initialState);
+    visitedState.add(initialState);
+
+    while (stackSimulate.isNotEmpty) {
+      String currentState = stackSimulate.removeFirst();
+
+      for (String stateFound in transitionFunction[currentState]!.values) {
+        if (!visitedState.contains(stateFound)) {
+          visitedState.add(stateFound);
+          stackSimulate.addLast(stateFound);
+        }
+      }
+    }
+    return visitedState;
   }
 }
