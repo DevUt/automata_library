@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:core';
 import 'package:collection/collection.dart';
 import 'package:automata_library/src/base/exceptions.dart';
@@ -6,6 +7,7 @@ import 'package:automata_library/src/base/exceptions.dart';
 /// automata
 class NFA {
   /// Alphabet that is allowed for the automata denoted formally as Σ
+  /// To write epsilon use empty string
   Set<String> alphabet;
 
   /// Initial state for the NFA formally as q0
@@ -68,7 +70,8 @@ class NFA {
 
     // if the symbol is not in the alphabet then throw
     // InvalidInputSymbolException
-    if (!alphabet.contains(symbol)) {
+    // If it is an empty string then it is an epsilon transition
+    if ((!alphabet.contains(symbol)) && symbol != '') {
       throw InvalidInputSymbolException(offendingSymbol: symbol);
     }
 
@@ -96,5 +99,35 @@ class NFA {
   ///return the result of test input
   Set<String>? testInput(List<String> input) {
     return testStepWiseInput(input).last;
+  }
+
+  ///Internal helper to search the Multigraph formed by the NFA
+  Set<String> _traversalSearch({required String startState}) {
+    Set<String> visitedState = {};
+    Queue<String> stackSimulate = Queue();
+
+    stackSimulate.add(startState);
+    visitedState.add(startState);
+
+    while (stackSimulate.isNotEmpty) {
+      String currentState = stackSimulate.removeFirst();
+
+      for (Set<String> setOfStates
+          in transitionFunction[currentState]!.values) {
+        for (String state in setOfStates) {
+          if (!visitedState.contains(state)) {
+            visitedState.add(state);
+            stackSimulate.addLast(state);
+          }
+        }
+      }
+    }
+
+    return visitedState;
+  }
+
+  ///Compute reachable states from initialState
+  Set<String> computeReachableStates() {
+    return _traversalSearch(startState: initialState);
   }
 }
