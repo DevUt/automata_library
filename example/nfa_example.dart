@@ -11,6 +11,7 @@ void main() {
       transitionFunction: {
         "q0": {
           "0": {"q1"},
+          "1": {""}
         },
         "q1": {
           "0": {"q2", "q0"},
@@ -22,6 +23,11 @@ void main() {
         }
       });
 
+  print(nfa.alphabet);
+  print(nfa.states);
+  print(nfa.acceptingStates);
+  print(nfa.initialState);
+  print(nfa.transitionFunction);
   print("Is NFA valid? ${nfa.validate()}");
   print(nfa.epsilonClosure);
   String? inputString;

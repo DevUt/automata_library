@@ -33,6 +33,9 @@ class NFA {
     required this.states,
     required this.transitionFunction,
   }) {
+    if (!validate()) {
+      throw InvalidNfaException();
+    }
     // First compute the epsilonClosure for all states to cache
     _computeEpsilonClosure();
   }
@@ -87,7 +90,10 @@ class NFA {
 
     for (MapEntry transitionObj in transitionFunction.entries) {
       // Check if the alphabet used is ⊂ alphabet
-      if (!alphabet.containsAll(MapKeySet(transitionObj.value))) return false;
+      if (!({""}..addAll(alphabet))
+          .containsAll(MapKeySet(transitionObj.value))) {
+        return false;
+      }
 
       // Check if the states in the function is ⊂ states
       for (MapEntry stateMap in transitionObj.value.entries) {

@@ -25,3 +25,9 @@ class InvalidStateException implements Exception {
   @override
   String toString() => message;
 }
+
+/// Exception raised when invalid NFA object is instantiated
+class InvalidNfaException implements Exception {
+  @override
+  String toString() => "Invalid NFA";
+}
