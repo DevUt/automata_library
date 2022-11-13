@@ -130,4 +130,20 @@ class NFA {
   Set<String> computeReachableStates() {
     return _traversalSearch(startState: initialState);
   }
+
+  ///Find states which are dead (have no path to final state)
+  Set<String> computeDeadStates() {
+    Set<String> deadStates = {};
+
+    for (String state in states) {
+      if (!acceptingStates.contains(state)) {
+        Set<String> statesReachable = _traversalSearch(startState: state);
+
+        if (acceptingStates.intersection(statesReachable).isEmpty) {
+          deadStates.add(state);
+        }
+      }
+    }
+    return deadStates;
+  }
 }
