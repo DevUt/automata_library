@@ -98,7 +98,7 @@ class NFA {
   }
 
   /// returns transition from a originState reading a input
-  Set<String>? transition(
+  Set<String> transition(
       {required String originState, required String symbol}) {
     // If the originState is not in state throw InvalidStateException
     if (!states.contains(originState)) {
@@ -107,7 +107,7 @@ class NFA {
 
     // If the originState doesn't exist in transition function then we have no
     // outgoing arrow
-    if (!transitionFunction.containsKey(originState)) return null;
+    if (!transitionFunction.containsKey(originState)) return {};
 
     // if the symbol is not in the alphabet then throw
     // InvalidInputSymbolException
@@ -134,21 +134,14 @@ class NFA {
     Set<Set<String>> statesAtSteps = {};
     String currentState = initialState;
     for (String inputSymbol in input) {
-      Set<String>? transitionResult =
-          transition(originState: currentState, symbol: inputSymbol);
-
-      if (transitionResult == null) {
-        statesAtSteps.add({});
-        break;
-      } else {
-        statesAtSteps.add(transitionResult);
-      }
+      statesAtSteps
+          .add(transition(originState: currentState, symbol: inputSymbol));
     }
     return statesAtSteps;
   }
 
   ///return the result of test input
-  Set<String>? testInput(List<String> input) {
+  Set<String> testInput(List<String> input) {
     return testStepWiseInput(input).last;
   }
 
