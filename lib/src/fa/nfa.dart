@@ -23,13 +23,53 @@ class NFA {
   /// state : [alphabet, Set<State>]
   Map<String, Map<String, Set<String>>> transitionFunction;
 
+  /// Epsilon closure for each node
+  Map<String, Set<String>> epsilonClosure = {};
+
   NFA({
     required this.alphabet,
     required this.initialState,
     required this.acceptingStates,
     required this.states,
     required this.transitionFunction,
-  });
+  }) {
+    // First compute the epsilonClosure for all states to cache
+    _computeEpsilonClosure();
+  }
+
+  void _computeEpsilonClosure() {
+    for (String state in states) {
+      Set<String> visitedState = {};
+      Queue<String> stackSimulate = Queue();
+
+      if (!visitedState.contains(state)) {
+        visitedState.add(state);
+        stackSimulate.add(state);
+
+        while (stackSimulate.isNotEmpty) {
+          String currentState = stackSimulate.removeFirst();
+          for (MapEntry transitionObj
+              in transitionFunction[currentState]!.entries) {
+            if (transitionObj.key == '') {
+              Set<String> toAdd = transitionObj.value.difference(visitedState);
+              visitedState.addAll(toAdd);
+              stackSimulate.addAll(toAdd);
+            }
+          }
+        }
+      }
+      epsilonClosure.addAll({state: visitedState});
+    }
+  }
+
+  /// returns epsilonClosure for a state
+  Set<String> epsilonClosureOfState(String state) {
+    if (epsilonClosure[state] == null) {
+      throw InvalidStateException(offendingState: state);
+    } else {
+      return epsilonClosure[state]!;
+    }
+  }
 
   /// Validate the NFA
   /// For a valid NFA, initialState ⊂ states, acceptingStates ⊂ states
@@ -57,6 +97,7 @@ class NFA {
     return true;
   }
 
+  /// returns transition from a originState reading a input
   Set<String>? transition(
       {required String originState, required String symbol}) {
     // If the originState is not in state throw InvalidStateException
@@ -75,23 +116,33 @@ class NFA {
       throw InvalidInputSymbolException(offendingSymbol: symbol);
     }
 
-    return transitionFunction[originState]![symbol];
+    Set<String> result = {};
+    Set<String> statesToCheck = epsilonClosureOfState(originState);
+
+    for (String state in statesToCheck) {
+      if (transitionFunction[state]!.containsKey(symbol)) {
+        for (String stateAvail in transitionFunction[state]![symbol]!) {
+          result.addAll(epsilonClosureOfState(stateAvail));
+        }
+      }
+    }
+    return result;
   }
 
   /// return set of states that is reached by NFA on a input
   Set<Set<String>> testStepWiseInput(List<String> input) {
     Set<Set<String>> statesAtSteps = {};
-    List<String> statesToCheck = [initialState];
+    String currentState = initialState;
     for (String inputSymbol in input) {
-      List<String> newStates = [];
+      Set<String>? transitionResult =
+          transition(originState: currentState, symbol: inputSymbol);
 
-      for (String state in statesToCheck) {
-        newStates.addAll(
-            transition(originState: state, symbol: inputSymbol)?.toList() ??
-                []);
-        statesAtSteps.add(statesToCheck.toSet());
+      if (transitionResult == null) {
+        statesAtSteps.add({});
+        break;
+      } else {
+        statesAtSteps.add(transitionResult);
       }
-      statesToCheck = newStates;
     }
     return statesAtSteps;
   }
