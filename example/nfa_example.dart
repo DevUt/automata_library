@@ -10,26 +10,28 @@ void main() {
       states: {"q0", "q1", "q2"},
       transitionFunction: {
         "q0": {
-          "0": {"q1"}
+          "0": {"q1"},
+          "": {"q1"}
         },
         "q1": {
-          "1": {"q2"}
+          "0": {"q2"},
+          "": {"q2"}
         },
         "q2": {
           "0": {"q2"},
-          "1": {"q2"}
+          "": {"q0"}
         }
       });
 
   print("Is NFA valid? ${nfa.validate()}");
-
+  print(nfa.epsilonClosure);
   String? inputString;
   print("Test a input string");
   inputString = stdin.readLineSync();
 
-  if (inputString == null)
+  if (inputString == null) {
     return;
-  else {
+  } else {
     print(nfa.testInput(inputString.split("")));
   }
 }
