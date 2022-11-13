@@ -132,10 +132,15 @@ class NFA {
   /// return set of states that is reached by NFA on a input
   Set<Set<String>> testStepWiseInput(List<String> input) {
     Set<Set<String>> statesAtSteps = {};
-    String currentState = initialState;
+
+    Set<String> currentState = {initialState};
     for (String inputSymbol in input) {
-      statesAtSteps
-          .add(transition(originState: currentState, symbol: inputSymbol));
+      Set<String> statesToAdd = {};
+      for (String state in currentState) {
+        statesToAdd.addAll(transition(originState: state, symbol: inputSymbol));
+      }
+      currentState = statesToAdd;
+      statesAtSteps.add(statesToAdd);
     }
     return statesAtSteps;
   }
@@ -143,6 +148,11 @@ class NFA {
   ///return the result of test input
   Set<String> testInput(List<String> input) {
     return testStepWiseInput(input).last;
+  }
+
+  ///Check if set of states have acceptingStates
+  bool isAcceptingState(Set<String> states) {
+    return acceptingStates.intersection(states).isNotEmpty;
   }
 
   ///Internal helper to search the Multigraph formed by the NFA
