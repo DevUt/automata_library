@@ -1,42 +1,58 @@
+import 'dart:collection';
 import 'dart:io';
 
 import 'package:automata_library/automata_library.dart';
+import 'package:collection/collection.dart';
 
 void main() {
   NFA nfa = NFA(
-      alphabet: {"0", "1"},
-      initialState: "q0",
-      acceptingStates: {"q2"},
-      states: {"q0", "q1", "q2"},
+      alphabet: {"a", "b", "c"},
+      initialState: "p",
+      acceptingStates: {"r"},
+      states: {"p", "q", "r"},
       transitionFunction: {
-        "q0": {
-          "0": {"q1"},
-          "1": {""}
+        "p": {
+          "": {"q", "r"},
+          "b": {"q"},
+          "c": {"r"}
         },
-        "q1": {
-          "0": {"q2", "q0"},
-          "1": {"q2"}
+        "q": {
+          "a": {"p"},
+          "b": {"r"},
+          "c": {"p", "q"}
         },
-        "q2": {
-          "0": {"q0"},
-          "1": {"q0", "q1"}
-        }
+        "r": {}
       });
 
-  print(nfa.alphabet);
-  print(nfa.states);
-  print(nfa.acceptingStates);
-  print(nfa.initialState);
-  print(nfa.transitionFunction);
-  print("Is NFA valid? ${nfa.validate()}");
-  print(nfa.epsilonClosure);
-  String? inputString;
-  print("Test a input string");
-  inputString = stdin.readLineSync();
+  List<Set<String>> listState = [];
+  listState.add(nfa.epsilonClosureOfState(nfa.initialState));
+  for (int i = 0; i < listState.length; i++) {
+    print("Now iterating ${listState[i]}");
+    for (String symbol in nfa.alphabet) {
+      Set<String> toAdd = {};
+      for (String state in listState[i]) {
+        toAdd.addAll(nfa.transition(originState: state, symbol: symbol));
 
-  if (inputString == null) {
-    return;
-  } else {
-    print(nfa.testInput(inputString.split("")));
+        print(
+            "Did transition ${nfa.transition(originState: state, symbol: symbol)} for $state at $symbol");
+      }
+      for (String state in toAdd) {
+        toAdd.addAll(nfa.epsilonClosureOfState(state));
+      }
+
+      print({toAdd});
+      bool contains = false;
+      for (Set<String> enStates in listState) {
+        if (SetEquality().equals(enStates, toAdd)) {
+          contains = true;
+        }
+      }
+
+      if (!contains) {
+        print("Added $toAdd");
+        listState.add(toAdd);
+      }
+    }
   }
+  print(listState);
 }
