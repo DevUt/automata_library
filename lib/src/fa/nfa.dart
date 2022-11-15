@@ -239,7 +239,11 @@ class NFA {
     Set<String> setState = {};
     Set<String> newAcceptingStates = {};
     for (Set each in listState) {
-      setState.add(each.join(''));
+      if (each.join('') == '') {
+        setState.add('null');
+      } else {
+        setState.add(each.join(''));
+      }
     }
     for (String acceptingState in acceptingStates) {
       for (String state in setState) {
