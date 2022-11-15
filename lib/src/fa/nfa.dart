@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:core';
 import 'package:collection/collection.dart';
+import 'package:automata_library/src/fa/dfa.dart';
 import 'package:automata_library/src/base/exceptions.dart';
 
 /// Class that manages and provides operation on a non-determinstic finite
@@ -205,5 +206,53 @@ class NFA {
       }
     }
     return deadStates;
+  }
+
+  ///Returns the converted DFA object of your NFA
+  DFA convertNfaToDfa() {
+    Map<String, Map<String, String>> transitionFunctionForDfa = {};
+    List<Set<String>> listState = [];
+    listState.add(epsilonClosureOfState(initialState));
+    for (int i = 0; i < listState.length; i++) {
+      Map<String, String> innerMap = {};
+      for (String symbol in alphabet) {
+        Set<String> toAdd = {};
+        for (String state in listState[i]) {
+          toAdd.addAll(transition(originState: state, symbol: symbol));
+        }
+        for (String state in toAdd) {
+          toAdd.addAll(epsilonClosureOfState(state));
+        }
+        innerMap.addAll({symbol: toAdd.toString()});
+        bool contains = false;
+        for (Set<String> enStates in listState) {
+          if (SetEquality().equals(enStates, toAdd)) {
+            contains = true;
+          }
+        }
+        transitionFunctionForDfa.addAll({listState[i].toString(): innerMap});
+        if (!contains) {
+          listState.add(toAdd);
+        }
+      }
+    }
+    Set<String> setState = {};
+    Set<String> newAcceptingStates = {};
+    for (Set each in listState) {
+      setState.add(each.join(''));
+    }
+    for (String acceptingState in acceptingStates) {
+      for (String state in setState) {
+        if (state.contains(acceptingState)) {
+          newAcceptingStates.add(state);
+        }
+      }
+    }
+    return DFA(
+        alphabet: alphabet,
+        initialState: initialState,
+        acceptingStates: newAcceptingStates,
+        states: setState,
+        transitionFunction: transitionFunctionForDfa);
   }
 }
