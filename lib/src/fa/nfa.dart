@@ -223,14 +223,22 @@ class NFA {
         for (String state in toAdd) {
           toAdd.addAll(epsilonClosureOfState(state));
         }
-        innerMap.addAll({symbol: toAdd.toString()});
+
+        String innerNewState = toAdd.toList().sorted().join('');
+        if (innerNewState == '') innerNewState = 'null';
+
+        innerMap.addAll({symbol: innerNewState});
         bool contains = false;
         for (Set<String> enStates in listState) {
           if (SetEquality().equals(enStates, toAdd)) {
             contains = true;
           }
         }
-        transitionFunctionForDfa.addAll({listState[i].toString(): innerMap});
+        String newState = listState[i].toList().sorted().join('');
+        if (newState == '') {
+          newState = 'null';
+        }
+        transitionFunctionForDfa.addAll({newState: innerMap});
         if (!contains) {
           listState.add(toAdd);
         }
@@ -238,8 +246,12 @@ class NFA {
     }
     Set<String> setState = {};
     Set<String> newAcceptingStates = {};
-    for (Set each in listState) {
-      setState.add(each.join(''));
+    for (Set<String> each in listState) {
+      if (each.join('') == '') {
+        setState.add('null');
+      } else {
+        setState.add(each.toList().sorted().join(''));
+      }
     }
     for (String acceptingState in acceptingStates) {
       for (String state in setState) {
