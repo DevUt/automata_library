@@ -9,23 +9,23 @@ import 'package:automata_library/src/base/exceptions.dart';
 class NFA {
   /// Alphabet that is allowed for the automata denoted formally as Σ
   /// To write epsilon use empty string
-  Set<String> alphabet;
+  late Set<String> alphabet;
 
   /// Initial state for the NFA formally as q0
-  String initialState;
+  late String initialState;
 
   /// The set of final accepting states formally denoted as F
-  Set<String> acceptingStates;
+  late Set<String> acceptingStates;
 
   /// The set of all states formally denoted as Q
-  Set<String> states;
+  late Set<String> states;
 
   /// The transition function δ: Q × Σ -> P(Q) where P denotes the power set
   /// state : [alphabet, Set<State>]
-  Map<String, Map<String, Set<String>>> transitionFunction;
+  late Map<String, Map<String, Set<String>>> transitionFunction;
 
   /// Epsilon closure for each node
-  Map<String, Set<String>> epsilonClosure = {};
+  late Map<String, Set<String>> epsilonClosure = {};
 
   NFA({
     required this.alphabet,
@@ -34,6 +34,36 @@ class NFA {
     required this.states,
     required this.transitionFunction,
   }) {
+    if (!validate()) {
+      throw InvalidNfaException();
+    }
+    // First compute the epsilonClosure for all states to cache
+    _computeEpsilonClosure();
+  }
+
+  NFA.fromDFA({required DFA dfa}) {
+    alphabet = dfa.alphabet;
+    initialState = dfa.initialState;
+    states = dfa.states;
+    acceptingStates = dfa.acceptingStates;
+
+    Map<String, Map<String, Set<String>>> newTransitionFunction = {};
+    for (MapEntry transitionObj in dfa.transitionFunction.entries) {
+      for (MapEntry innerTransition in transitionObj.value.entries) {
+        if (newTransitionFunction[transitionObj.key] != null) {
+          newTransitionFunction[transitionObj.key]!.addAll({
+            innerTransition.key: {innerTransition.value}
+          });
+        } else {
+          newTransitionFunction.addAll({
+            transitionObj.key: {
+              innerTransition.key: {innerTransition.value}
+            }
+          });
+        }
+      }
+      transitionFunction = newTransitionFunction;
+    }
     if (!validate()) {
       throw InvalidNfaException();
     }
@@ -246,6 +276,7 @@ class NFA {
     }
     Set<String> setState = {};
     Set<String> newAcceptingStates = {};
+
     for (Set<String> each in listState) {
       if (each.join('') == '') {
         setState.add('null');

@@ -1,13 +1,15 @@
+import 'dart:collection';
 import 'dart:io';
 
 import 'package:automata_library/automata_library.dart';
+import 'package:collection/collection.dart';
 
 void main() {
   NFA nfa = NFA(
-      alphabet: {"0", "1"},
-      initialState: "q0",
-      acceptingStates: {"q2"},
-      states: {"q0", "q1", "q2"},
+      alphabet: {"a", "b", "c"},
+      initialState: "p",
+      acceptingStates: {"r"},
+      states: {"p", "q", "r"},
       transitionFunction: {
         "q0": {
           "0": {"q2"}
