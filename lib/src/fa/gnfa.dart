@@ -1,5 +1,6 @@
 import 'package:automata_library/src/base/helper_classes.dart';
 import 'package:automata_library/src/fa/nfa.dart';
+import 'package:automata_library/src/fa/dfa.dart';
 
 /// Class to support Generalized Nondeterministic finite automata
 class GNFA extends NFA {
@@ -25,6 +26,7 @@ class GNFA extends NFA {
     _addNewAcceptingState(currrentAcceptingStates: {acceptingState});
   }
 
+  /// Construct GNFA from dfa
   GNFA.fromNfa(NFA nfa)
       : super(
             alphabet: nfa.alphabet,
@@ -37,6 +39,15 @@ class GNFA extends NFA {
 
     // New acceptingState to which the current accepting state points
     _addNewAcceptingState(currrentAcceptingStates: acceptingStates);
+  }
+
+  /// Construct GNFA from DFA
+  GNFA.fromDFA(DFA dfa) : super.fromDFA(dfa: dfa) {
+    // First we need to add a new initialState to the GNFA
+    _addNewInitialState();
+
+    // New acceptingState to which the current accepting state points
+    _addNewAcceptingState(currrentAcceptingStates: dfa.acceptingStates);
   }
 
   /// Add new initialState which points to the exisiting initialState
