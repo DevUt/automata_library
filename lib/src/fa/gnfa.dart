@@ -30,7 +30,7 @@ class GNFA extends NFA {
   GNFA.fromNfa(NFA nfa)
       : super(
             alphabet: nfa.alphabet,
-            states: nfa.acceptingStates,
+            states: nfa.states,
             acceptingStates: nfa.acceptingStates,
             initialState: nfa.initialState,
             transitionFunction: nfa.transitionFunction) {
