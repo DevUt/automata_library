@@ -203,6 +203,10 @@ class NFA {
     while (stackSimulate.isNotEmpty) {
       String currentState = stackSimulate.removeFirst();
 
+      if (!transitionFunction.containsKey(currentState)) {
+        continue;
+      }
+
       for (Set<String> setOfStates
           in transitionFunction[currentState]!.values) {
         for (String state in setOfStates) {
@@ -284,6 +288,7 @@ class NFA {
         setState.add(each.toList().sorted().join(''));
       }
     }
+
     for (String acceptingState in acceptingStates) {
       for (String state in setState) {
         if (state.contains(acceptingState)) {
@@ -293,7 +298,8 @@ class NFA {
     }
     return DFA(
         alphabet: alphabet,
-        initialState: initialState,
+        initialState:
+            epsilonClosureOfState(initialState).toList().sorted().toString(),
         acceptingStates: newAcceptingStates,
         states: setState,
         transitionFunction: transitionFunctionForDfa);
